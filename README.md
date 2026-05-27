@@ -185,4 +185,4 @@ mvn javafx:run
 
 ## Author
 
-Mutesire — IgirePay Technologies Ltd. Capstone Project
+Divine Mutesire — IgirePay Technologies Ltd. Capstone Project
