@@ -10,7 +10,6 @@ public abstract class Account {
     private double balance;
     private LocalDateTime createdAt;
 
-    // Constructor
     public Account(int id, int customerId, String accountType, double balance) {
         this.id = id;
         this.customerId = customerId;
@@ -19,7 +18,6 @@ public abstract class Account {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -35,19 +33,12 @@ public abstract class Account {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    // Abstract methods - each account type must implement these
     public abstract boolean deposit(double amount);
     public abstract boolean withdraw(double amount);
     public abstract String processTransaction(String referenceId, double amount, String type);
 
     @Override
     public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", customerId=" + customerId +
-                ", accountType='" + accountType + '\'' +
-                ", balance=" + balance +
-                ", createdAt=" + createdAt +
-                '}';
+        return "Account{id=" + id + ", customerId=" + customerId + ", accountType='" + accountType + "', balance=" + balance + ", createdAt=" + createdAt + '}';
     }
 }

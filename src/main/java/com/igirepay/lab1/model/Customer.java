@@ -7,11 +7,10 @@ public class Customer {
     private String email;
     private String phoneNumber;
     private String pin;
-    private String role; // 'user' or 'admin'
+    private String role;
     private int failedAttempts;
     private boolean locked;
 
-    // Constructor
     public Customer(int id, String fullName, String email, String phoneNumber, String pin) {
         this.id = id;
         this.fullName = fullName;
@@ -23,7 +22,6 @@ public class Customer {
         this.locked = false;
     }
 
-    // Constructor with role
     public Customer(int id, String fullName, String email, String phoneNumber, String pin, String role) {
         this.id = id;
         this.fullName = fullName;
@@ -35,7 +33,6 @@ public class Customer {
         this.locked = false;
     }
 
-    // Full constructor
     public Customer(int id, String fullName, String email, String phoneNumber, String pin, String role, int failedAttempts, boolean locked) {
         this.id = id;
         this.fullName = fullName;
@@ -47,7 +44,6 @@ public class Customer {
         this.locked = locked;
     }
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -74,11 +70,6 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                ", fullName='" + fullName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+        return "Customer{id=" + id + ", fullName='" + fullName + "', email='" + email + "', phoneNumber='" + phoneNumber + "'}";
     }
 }
