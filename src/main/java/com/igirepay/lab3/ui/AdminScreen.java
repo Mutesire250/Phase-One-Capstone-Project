@@ -34,28 +34,34 @@ public class AdminScreen {
 
         // Table
         table = new TableView<>();
-        TableColumn<Customer, Integer> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(c -> new javafx.beans.property.SimpleIntegerProperty(c.getValue().getId()).asObject());
+
+        // Use String for all columns to avoid JavaFX property binding issues
+        TableColumn<Customer, String> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(String.valueOf(c.getValue().getId())));
         idCol.setPrefWidth(60);
 
         TableColumn<Customer, String> nameCol = new TableColumn<>("Full Name");
         nameCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getFullName()));
-        nameCol.setPrefWidth(220);
+        nameCol.setPrefWidth(200);
 
         TableColumn<Customer, String> emailCol = new TableColumn<>("Email");
         emailCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getEmail()));
-        emailCol.setPrefWidth(220);
+        emailCol.setPrefWidth(200);
 
         TableColumn<Customer, String> phoneCol = new TableColumn<>("Phone");
         phoneCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getPhoneNumber()));
-        phoneCol.setPrefWidth(140);
+        phoneCol.setPrefWidth(130);
+
+        TableColumn<Customer, String> roleCol = new TableColumn<>("Role");
+        roleCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getRole() == null ? "user" : c.getValue().getRole()));
+        roleCol.setPrefWidth(80);
 
         TableColumn<Customer, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().isLocked() ? "LOCKED 🔒" : "ACTIVE"));
-        statusCol.setPrefWidth(100);
+        statusCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().isLocked() ? "LOCKED" : "ACTIVE"));
+        statusCol.setPrefWidth(80);
 
         // Do NOT display PINs in admin UI for security
-        table.getColumns().addAll(idCol, nameCol, emailCol, phoneCol, statusCol);
+        table.getColumns().addAll(idCol, nameCol, emailCol, phoneCol, roleCol, statusCol);
 
         // Buttons
         Button refreshBtn = new Button("Refresh");

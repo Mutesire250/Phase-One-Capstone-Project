@@ -409,27 +409,31 @@ public class DashboardScreen {
         // Create TableView
         javafx.scene.control.TableView<Transaction> table = new javafx.scene.control.TableView<>();
         table.getStyleClass().add("table-view");
-        table.setPrefHeight(320);
+        table.setPrefHeight(350);
 
         javafx.scene.control.TableColumn<Transaction, String> refCol = new javafx.scene.control.TableColumn<>("Reference ID");
         refCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getReferenceId()));
+        refCol.setPrefWidth(180);
 
         javafx.scene.control.TableColumn<Transaction, String> typeCol = new javafx.scene.control.TableColumn<>("Type");
         typeCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTransactionType()));
+        typeCol.setPrefWidth(120);
 
-        javafx.scene.control.TableColumn<Transaction, Double> amountCol = new javafx.scene.control.TableColumn<>("Amount");
-        amountCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getAmount()).asObject());
+        javafx.scene.control.TableColumn<Transaction, String> amountCol = new javafx.scene.control.TableColumn<>("Amount (RWF)");
+        amountCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
+                String.format("%.2f", cellData.getValue().getAmount())));
+        amountCol.setPrefWidth(120);
 
         javafx.scene.control.TableColumn<Transaction, String> dateCol = new javafx.scene.control.TableColumn<>("Date");
-        dateCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getCreatedAt().toString()));
+        dateCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
+                cellData.getValue().getCreatedAt() != null
+                        ? cellData.getValue().getCreatedAt().toString().replace("T", " ").substring(0, 19)
+                        : ""));
+        dateCol.setPrefWidth(160);
 
         table.getColumns().addAll(refCol, typeCol, amountCol, dateCol);
         table.getItems().addAll(transactions);
         table.setColumnResizePolicy(javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY);
-        refCol.setPrefWidth(200);
-        typeCol.setPrefWidth(120);
-        amountCol.setPrefWidth(120);
-        dateCol.setPrefWidth(200);
 
         contentArea.getChildren().addAll(title, table);
     }
