@@ -1,0 +1,170 @@
+.root {
+    -fx-font-family: "Arial";
+}
+
+.button {
+    -fx-cursor: hand;
+}
+
+.text-field, .password-field, .combo-box {
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+
+.table-view {
+    -fx-background-color: white;
+}
+
+.admin-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #172554;
+}
+
+.top-bar {
+    -fx-background-color: transparent;
+}
+
+.primary-button {
+    -fx-background-color: #1a2980;
+    -fx-text-fill: white;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 6;
+}
+
+.danger-button {
+    -fx-background-color: #c62828;
+    -fx-text-fill: white;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 6;
+}
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header, .table-view .column-header .label {
+    -fx-background-color: linear-gradient(#1a2980, #0f2345);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #fbfbfd;
+}
+.table-row-cell:even {
+    -fx-background-color: white;
+}
+
+.table-view .cell {
+    -fx-padding: 6 8 6 8;
+}
+
+/* Login styles */
+.login-root {
+    -fx-background-color: linear-gradient(to bottom, #1a2980, #26d0ce);
+}
+.login-title {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+.login-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: lightgray;
+}
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 5);
+}
+.content-area {
+    -fx-background-color: #f5f5f5;
+}
+
+/* Dashboard styles */
+.top-bar {
+    -fx-background-color: #1a2980;
+}
+.side-menu {
+    -fx-background-color: #2c3e50;
+    -fx-pref-width: 220;
+}
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-alignment: CENTER_LEFT;
+    -fx-pref-width: 180;
+    -fx-padding: 10 6 10 6;
+}
+.menu-button:hover {
+    -fx-background-color: #34495e;
+}
+.primary-button {
+    -fx-background-color: #1a2980;
+    -fx-text-fill: white;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 6;
+}
+.success-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+.danger-button {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+
+/* Registration / Dialog styles */
+.dialog-grid {
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+}
+.dialog-pane {
+    -fx-background-color: white;
+}
+.dialog-button {
+    -fx-background-radius: 6;
+    -fx-padding: 6 12 6 12;
+}
+
+/* Table header tweaks */
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(#1a2980, #0f2345);
+}
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Form/card styles used across dashboard dialogs */
+.form-card {
+    -fx-background-color: white;
+    -fx-border-radius: 6;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 4);
+}
+.card-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #172554;
+}
+.input-field {
+    -fx-pref-height: 36;
+    -fx-font-size: 14px;
+}
+.label-muted {
+    -fx-text-fill: #666666;
+}
+.table-small {
+    -fx-font-size: 13px;
+}
+.export-button {
+    -fx-background-color: #1a2980;
+    -fx-text-fill: white;
+}
