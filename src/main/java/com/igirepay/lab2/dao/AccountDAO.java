@@ -11,110 +11,77 @@ import java.util.List;
 
 public class AccountDAO {
 
-    // CREATE - Add new account
     public boolean addAccount(Account account) {
         String sql = "INSERT INTO accounts (customer_id, account_type, balance) VALUES (?, ?, ?)";
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setInt(1, account.getCustomerId());
             stmt.setString(2, account.getAccountType());
             stmt.setDouble(3, account.getBalance());
-
-            int rows = stmt.executeUpdate();
-            return rows > 0;
-
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Error adding account: " + e.getMessage());
             return false;
         }
     }
 
-    // READ - Get account by ID
     public Account getAccountById(int id) {
         String sql = "SELECT * FROM accounts WHERE id = ?";
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return mapAccount(rs);
-            }
-
+            if (rs.next()) return mapAccount(rs);
         } catch (SQLException e) {
             System.out.println("Error getting account: " + e.getMessage());
         }
         return null;
     }
 
-    // READ - Get all accounts by customer ID
     public List<Account> getAccountsByCustomerId(int customerId) {
         String sql = "SELECT * FROM accounts WHERE customer_id = ?";
         List<Account> accounts = new ArrayList<>();
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setInt(1, customerId);
             ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                accounts.add(mapAccount(rs));
-            }
-
+            while (rs.next()) accounts.add(mapAccount(rs));
         } catch (SQLException e) {
             System.out.println("Error getting accounts: " + e.getMessage());
         }
         return accounts;
     }
 
-    // UPDATE - Update account balance
     public boolean updateBalance(int accountId, double newBalance) {
         String sql = "UPDATE accounts SET balance = ? WHERE id = ?";
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setDouble(1, newBalance);
             stmt.setInt(2, accountId);
-
-            int rows = stmt.executeUpdate();
-            return rows > 0;
-
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Error updating balance: " + e.getMessage());
             return false;
         }
     }
 
-    // DELETE - Delete account by ID
     public boolean deleteAccount(int id) {
         String sql = "DELETE FROM accounts WHERE id = ?";
-
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setInt(1, id);
-            int rows = stmt.executeUpdate();
-            return rows > 0;
-
+            return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Error deleting account: " + e.getMessage());
             return false;
         }
     }
 
-    // Helper - Map ResultSet to correct Account type
     private Account mapAccount(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         int customerId = rs.getInt("customer_id");
         String type = rs.getString("account_type");
         double balance = rs.getDouble("balance");
-
         if (type.equalsIgnoreCase("WALLET")) {
             return new WalletAccount(id, customerId, balance);
         } else {
