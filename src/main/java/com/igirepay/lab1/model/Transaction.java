@@ -11,7 +11,6 @@ public class Transaction {
     private double amount;
     private LocalDateTime createdAt;
 
-    // Constructor
     public Transaction(int id, int accountId, String referenceId, String transactionType, double amount) {
         this.id = id;
         this.accountId = accountId;
@@ -21,7 +20,6 @@ public class Transaction {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Constructor with explicit createdAt (used when loading from DB)
     public Transaction(int id, int accountId, String referenceId, String transactionType, double amount, LocalDateTime createdAt) {
         this.id = id;
         this.accountId = accountId;
@@ -31,7 +29,6 @@ public class Transaction {
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -52,13 +49,6 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return "Transaction{" +
-                "id=" + id +
-                ", accountId=" + accountId +
-                ", referenceId='" + referenceId + '\'' +
-                ", transactionType='" + transactionType + '\'' +
-                ", amount=" + amount +
-                ", createdAt=" + createdAt +
-                '}';
+        return "Transaction{id=" + id + ", accountId=" + accountId + ", referenceId='" + referenceId + "', transactionType='" + transactionType + "', amount=" + amount + ", createdAt=" + createdAt + '}';
     }
 }
