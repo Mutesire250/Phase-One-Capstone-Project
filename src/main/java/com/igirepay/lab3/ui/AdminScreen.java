@@ -103,13 +103,35 @@ public class AdminScreen {
 
     private void loadCustomers() {
         List<Customer> customers = customerService.getAllCustomers();
-        System.out.println("DEBUG: Loaded " + customers.size() + " customers from DB");
-        for (Customer c : customers) {
-            System.out.println("  -> " + c.getId() + " | " + c.getFullName() + " | " + c.getEmail());
+        if (customers.isEmpty()) {
+            customers = loadCustomersFallback();
         }
         ObservableList<Customer> data = FXCollections.observableArrayList(customers);
         table.setItems(data);
         table.refresh();
+    }
+
+    private List<Customer> loadCustomersFallback() {
+        List<Customer> customers = new java.util.ArrayList<>();
+        try (java.sql.Connection conn = com.igirepay.lab2.db.DBConnection.getConnection();
+             java.sql.Statement stmt = conn.createStatement();
+             java.sql.ResultSet rs = stmt.executeQuery("SELECT id, full_name, email, phone_number, pin, role, COALESCE(failed_attempts,0) AS failed_attempts, COALESCE(locked,false) AS locked FROM customers")) {
+            while (rs.next()) {
+                customers.add(new Customer(
+                    rs.getInt("id"),
+                    rs.getString("full_name"),
+                    rs.getString("email"),
+                    rs.getString("phone_number"),
+                    rs.getString("pin"),
+                    rs.getString("role"),
+                    rs.getInt("failed_attempts"),
+                    rs.getBoolean("locked")
+                ));
+            }
+        } catch (java.sql.SQLException e) {
+            System.out.println("Fallback load failed: " + e.getMessage());
+        }
+        return customers;
     }
 
     private void deleteSelected() {

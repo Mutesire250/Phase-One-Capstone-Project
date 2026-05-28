@@ -400,16 +400,19 @@ public class DashboardScreen {
 
         var transactions = transactionService.getTransactionHistory(Session.getCurrentAccount().getId());
 
+        Label countLabel = new Label("Account ID: " + Session.getCurrentAccount().getId() + "  |  Total transactions: " + transactions.size());
+        countLabel.setFont(Font.font("Arial", 13));
+        countLabel.setStyle("-fx-text-fill: #555;");
+
         if (transactions.isEmpty()) {
-            Label noTrans = new Label("No transactions found for this account.");
-            contentArea.getChildren().addAll(title, noTrans);
+            Label noTrans = new Label("No transactions found for this account. Make a deposit or transfer first.");
+            noTrans.setStyle("-fx-text-fill: gray; -fx-font-size: 13;");
+            contentArea.getChildren().addAll(title, countLabel, noTrans);
             return;
         }
 
-        // Create TableView
         javafx.scene.control.TableView<Transaction> table = new javafx.scene.control.TableView<>();
         table.getStyleClass().add("table-view");
-        table.setPrefHeight(350);
 
         javafx.scene.control.TableColumn<Transaction, String> refCol = new javafx.scene.control.TableColumn<>("Reference ID");
         refCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getReferenceId()));
@@ -417,25 +420,26 @@ public class DashboardScreen {
 
         javafx.scene.control.TableColumn<Transaction, String> typeCol = new javafx.scene.control.TableColumn<>("Type");
         typeCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTransactionType()));
-        typeCol.setPrefWidth(120);
+        typeCol.setPrefWidth(130);
 
         javafx.scene.control.TableColumn<Transaction, String> amountCol = new javafx.scene.control.TableColumn<>("Amount (RWF)");
         amountCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
                 String.format("%.2f", cellData.getValue().getAmount())));
-        amountCol.setPrefWidth(120);
+        amountCol.setPrefWidth(130);
 
         javafx.scene.control.TableColumn<Transaction, String> dateCol = new javafx.scene.control.TableColumn<>("Date");
         dateCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
                 cellData.getValue().getCreatedAt() != null
                         ? cellData.getValue().getCreatedAt().toString().replace("T", " ").substring(0, 19)
                         : ""));
-        dateCol.setPrefWidth(160);
+        dateCol.setPrefWidth(170);
 
         table.getColumns().addAll(refCol, typeCol, amountCol, dateCol);
         table.getItems().addAll(transactions);
         table.setColumnResizePolicy(javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY);
+        table.setPrefHeight(400);
 
-        contentArea.getChildren().addAll(title, table);
+        contentArea.getChildren().addAll(title, countLabel, table);
     }
 
     private void showSendMoney() {
@@ -519,23 +523,33 @@ public class DashboardScreen {
         Label title = new Label("Export Transactions");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
 
-        Label info = new Label("Export transaction history for account ID: " + Session.getCurrentAccount().getId());
-        info.setFont(Font.font("Arial", 14));
+        Label info = new Label("Click the button below to choose where to save your Excel/CSV file.");
+        info.setFont(Font.font("Arial", 13));
 
-        Button exportBtn = new Button("Export CSV");
+        Button exportBtn = new Button("Export to Excel / CSV");
         exportBtn.getStyleClass().add("primary-button");
 
         Label message = new Label();
 
         exportBtn.setOnAction(e -> {
-            String fileName = "transactions_account_" + Session.getCurrentAccount().getId() + ".csv";
-            try {
-                transactionService.exportToCSV(Session.getCurrentAccount().getId(), fileName);
-                message.setStyle("-fx-text-fill: green;");
-                message.setText("Exported to exports/" + fileName);
-            } catch (Exception ex) {
-                message.setStyle("-fx-text-fill: red;");
-                message.setText("Export failed: " + ex.getMessage());
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Save Transactions");
+            fileChooser.setInitialFileName("transactions_account_" + Session.getCurrentAccount().getId() + ".csv");
+            fileChooser.getExtensionFilters().addAll(
+                new javafx.stage.FileChooser.ExtensionFilter("Excel / CSV Files", "*.csv"),
+                new javafx.stage.FileChooser.ExtensionFilter("All Files", "*.*")
+            );
+
+            java.io.File file = fileChooser.showSaveDialog(exportBtn.getScene().getWindow());
+            if (file != null) {
+                try {
+                    transactionService.exportToFile(Session.getCurrentAccount().getId(), file.getAbsolutePath());
+                    message.setStyle("-fx-text-fill: green;");
+                    message.setText("Exported successfully to: " + file.getAbsolutePath());
+                } catch (Exception ex) {
+                    message.setStyle("-fx-text-fill: red;");
+                    message.setText("Export failed: " + ex.getMessage());
+                }
             }
         });
 

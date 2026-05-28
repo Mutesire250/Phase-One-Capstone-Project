@@ -120,4 +120,20 @@ public class TransactionService {
             System.out.println("Error exporting transactions: " + e.getMessage());
         }
     }
+
+    public void exportToFile(int accountId, String absolutePath) {
+        List<Transaction> transactions = getTransactionHistory(accountId);
+        if (transactions.isEmpty()) throw new RuntimeException("No transactions found for this account.");
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try (java.io.BufferedWriter writer = new java.io.BufferedWriter(new java.io.FileWriter(absolutePath))) {
+            writer.write("ID,Reference ID,Type,Amount,Created At\n");
+            for (Transaction t : transactions) {
+                writer.write(String.format("%d,%s,%s,%.2f,%s\n",
+                    t.getId(), t.getReferenceId(), t.getTransactionType(), t.getAmount(),
+                    t.getCreatedAt() != null ? t.getCreatedAt().format(fmt) : ""));
+            }
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to write file: " + e.getMessage());
+        }
+    }
 }
