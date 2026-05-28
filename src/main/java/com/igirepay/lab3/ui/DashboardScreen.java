@@ -435,9 +435,13 @@ public class DashboardScreen {
         dateCol.setPrefWidth(170);
 
         table.getColumns().addAll(refCol, typeCol, amountCol, dateCol);
-        table.getItems().addAll(transactions);
         table.setColumnResizePolicy(javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY);
         table.setPrefHeight(400);
+
+        javafx.application.Platform.runLater(() -> {
+            table.getItems().addAll(transactions);
+            table.refresh();
+        });
 
         contentArea.getChildren().addAll(title, countLabel, table);
     }

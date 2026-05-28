@@ -106,9 +106,10 @@ public class AdminScreen {
         if (customers.isEmpty()) {
             customers = loadCustomersFallback();
         }
-        ObservableList<Customer> data = FXCollections.observableArrayList(customers);
+        final List<Customer> finalCustomers = customers;
+        ObservableList<Customer> data = FXCollections.observableArrayList(finalCustomers);
         table.setItems(data);
-        table.refresh();
+        javafx.application.Platform.runLater(() -> table.refresh());
     }
 
     private List<Customer> loadCustomersFallback() {
