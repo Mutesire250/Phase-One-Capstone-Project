@@ -17,7 +17,8 @@ public class AdminScreen {
 
     private BorderPane view;
     private CustomerService customerService = new CustomerService();
-    private TableView<Customer> table;
+    private TableView<String[]> table;
+    private List<Customer> currentCustomers = new java.util.ArrayList<>();
 
     public AdminScreen() {
         createView();
@@ -32,38 +33,36 @@ public class AdminScreen {
         Label title = new Label("IgirePay Admin - Customers");
         title.getStyleClass().add("admin-title");
 
-        // Table
         table = new TableView<>();
 
-        // Use String for all columns to avoid JavaFX property binding issues
-        TableColumn<Customer, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(String.valueOf(c.getValue().getId())));
-        idCol.setPrefWidth(60);
+        TableColumn<String[], String> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue()[0]));
+        idCol.setPrefWidth(55);
 
-        TableColumn<Customer, String> nameCol = new TableColumn<>("Full Name");
-        nameCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getFullName()));
-        nameCol.setPrefWidth(200);
+        TableColumn<String[], String> nameCol = new TableColumn<>("Full Name");
+        nameCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue()[1]));
+        nameCol.setPrefWidth(190);
 
-        TableColumn<Customer, String> emailCol = new TableColumn<>("Email");
-        emailCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getEmail()));
+        TableColumn<String[], String> emailCol = new TableColumn<>("Email");
+        emailCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue()[2]));
         emailCol.setPrefWidth(200);
 
-        TableColumn<Customer, String> phoneCol = new TableColumn<>("Phone");
-        phoneCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getPhoneNumber()));
+        TableColumn<String[], String> phoneCol = new TableColumn<>("Phone");
+        phoneCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue()[3]));
         phoneCol.setPrefWidth(130);
 
-        TableColumn<Customer, String> roleCol = new TableColumn<>("Role");
-        roleCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getRole() == null ? "user" : c.getValue().getRole()));
-        roleCol.setPrefWidth(80);
+        TableColumn<String[], String> roleCol = new TableColumn<>("Role");
+        roleCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue()[4]));
+        roleCol.setPrefWidth(75);
 
-        TableColumn<Customer, String> statusCol = new TableColumn<>("Status");
-        statusCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().isLocked() ? "LOCKED" : "ACTIVE"));
-        statusCol.setPrefWidth(80);
+        TableColumn<String[], String> statusCol = new TableColumn<>("Status");
+        statusCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue()[5]));
+        statusCol.setPrefWidth(75);
 
-        // Do NOT display PINs in admin UI for security
         table.getColumns().addAll(idCol, nameCol, emailCol, phoneCol, roleCol, statusCol);
+        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        table.setPrefHeight(420);
 
-        // Buttons
         Button refreshBtn = new Button("Refresh");
         refreshBtn.getStyleClass().add("primary-button");
         refreshBtn.setOnAction(e -> loadCustomers());
@@ -95,53 +94,37 @@ public class AdminScreen {
         top.setPadding(new Insets(0, 0, 10, 0));
 
         view.setTop(top);
-        table.getStyleClass().add("table-view");
-        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        table.setPrefHeight(420);
         view.setCenter(table);
     }
 
     private void loadCustomers() {
-        List<Customer> customers = customerService.getAllCustomers();
-        if (customers.isEmpty()) {
-            customers = loadCustomersFallback();
+        currentCustomers = customerService.getAllCustomers();
+        ObservableList<String[]> rows = FXCollections.observableArrayList();
+        for (Customer c : currentCustomers) {
+            rows.add(new String[]{
+                String.valueOf(c.getId()),
+                c.getFullName(),
+                c.getEmail(),
+                c.getPhoneNumber(),
+                c.getRole() == null ? "user" : c.getRole(),
+                c.isLocked() ? "LOCKED" : "ACTIVE"
+            });
         }
-        final List<Customer> finalCustomers = customers;
-        ObservableList<Customer> data = FXCollections.observableArrayList(finalCustomers);
-        table.setItems(data);
-        javafx.application.Platform.runLater(() -> table.refresh());
+        table.setItems(rows);
     }
 
-    private List<Customer> loadCustomersFallback() {
-        List<Customer> customers = new java.util.ArrayList<>();
-        try (java.sql.Connection conn = com.igirepay.lab2.db.DBConnection.getConnection();
-             java.sql.Statement stmt = conn.createStatement();
-             java.sql.ResultSet rs = stmt.executeQuery("SELECT id, full_name, email, phone_number, pin, role, COALESCE(failed_attempts,0) AS failed_attempts, COALESCE(locked,false) AS locked FROM customers")) {
-            while (rs.next()) {
-                customers.add(new Customer(
-                    rs.getInt("id"),
-                    rs.getString("full_name"),
-                    rs.getString("email"),
-                    rs.getString("phone_number"),
-                    rs.getString("pin"),
-                    rs.getString("role"),
-                    rs.getInt("failed_attempts"),
-                    rs.getBoolean("locked")
-                ));
-            }
-        } catch (java.sql.SQLException e) {
-            System.out.println("Fallback load failed: " + e.getMessage());
-        }
-        return customers;
+    private Customer getSelectedCustomer() {
+        int index = table.getSelectionModel().getSelectedIndex();
+        if (index < 0 || index >= currentCustomers.size()) return null;
+        return currentCustomers.get(index);
     }
 
     private void deleteSelected() {
-        Customer sel = table.getSelectionModel().getSelectedItem();
+        Customer sel = getSelectedCustomer();
         if (sel == null) {
             showAlert(Alert.AlertType.WARNING, "No selection", "Please select a customer to delete.");
             return;
         }
-
         boolean ok = customerService.deleteCustomer(sel.getId());
         if (ok) {
             showAlert(Alert.AlertType.INFORMATION, "Deleted", "Customer deleted successfully.");
@@ -152,23 +135,20 @@ public class AdminScreen {
     }
 
     private void resetSelectedPin() {
-        Customer sel = table.getSelectionModel().getSelectedItem();
+        Customer sel = getSelectedCustomer();
         if (sel == null) {
             showAlert(Alert.AlertType.WARNING, "No selection", "Please select a customer to reset PIN.");
             return;
         }
-
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Reset PIN");
         dialog.setHeaderText("Reset PIN for " + sel.getFullName());
         dialog.setContentText("Enter new 4-digit PIN:");
-
         dialog.showAndWait().ifPresent(newPin -> {
             if (newPin.length() != 4) {
                 showAlert(Alert.AlertType.ERROR, "Invalid PIN", "PIN must be exactly 4 digits.");
                 return;
             }
-
             boolean ok = customerService.changePin(sel.getId(), newPin);
             if (ok) {
                 showAlert(Alert.AlertType.INFORMATION, "Success", "PIN updated successfully.");
@@ -180,12 +160,11 @@ public class AdminScreen {
     }
 
     private void unlockSelectedCustomer() {
-        Customer sel = table.getSelectionModel().getSelectedItem();
+        Customer sel = getSelectedCustomer();
         if (sel == null) {
             showAlert(Alert.AlertType.WARNING, "No selection", "Please select a customer to unlock.");
             return;
         }
-
         boolean ok = customerService.unlockCustomer(sel.getId());
         if (ok) {
             showAlert(Alert.AlertType.INFORMATION, "Success", "Customer account unlocked successfully.");

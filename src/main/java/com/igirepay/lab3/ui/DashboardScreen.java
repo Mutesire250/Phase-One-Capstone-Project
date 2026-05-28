@@ -395,53 +395,53 @@ public class DashboardScreen {
             return;
         }
 
+        var transactions = transactionService.getTransactionHistory(Session.getCurrentAccount().getId());
+
         Label title = new Label("Transaction History");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
 
-        var transactions = transactionService.getTransactionHistory(Session.getCurrentAccount().getId());
-
-        Label countLabel = new Label("Account ID: " + Session.getCurrentAccount().getId() + "  |  Total transactions: " + transactions.size());
-        countLabel.setFont(Font.font("Arial", 13));
-        countLabel.setStyle("-fx-text-fill: #555;");
+        Label countLabel = new Label("Account ID: " + Session.getCurrentAccount().getId() + "  |  Total: " + transactions.size() + " transaction(s)");
+        countLabel.setStyle("-fx-text-fill: #555; -fx-font-size: 13;");
 
         if (transactions.isEmpty()) {
-            Label noTrans = new Label("No transactions found for this account. Make a deposit or transfer first.");
+            Label noTrans = new Label("No transactions yet. Make a deposit or transfer first.");
             noTrans.setStyle("-fx-text-fill: gray; -fx-font-size: 13;");
             contentArea.getChildren().addAll(title, countLabel, noTrans);
             return;
         }
 
-        javafx.scene.control.TableView<Transaction> table = new javafx.scene.control.TableView<>();
-        table.getStyleClass().add("table-view");
+        javafx.collections.ObservableList<String[]> rows = javafx.collections.FXCollections.observableArrayList();
+        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        for (Transaction t : transactions) {
+            rows.add(new String[]{
+                t.getReferenceId(),
+                t.getTransactionType(),
+                String.format("%.2f", t.getAmount()),
+                t.getCreatedAt() != null ? t.getCreatedAt().format(fmt) : ""
+            });
+        }
 
-        javafx.scene.control.TableColumn<Transaction, String> refCol = new javafx.scene.control.TableColumn<>("Reference ID");
-        refCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getReferenceId()));
-        refCol.setPrefWidth(180);
+        javafx.scene.control.TableView<String[]> table = new javafx.scene.control.TableView<>(rows);
 
-        javafx.scene.control.TableColumn<Transaction, String> typeCol = new javafx.scene.control.TableColumn<>("Type");
-        typeCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getTransactionType()));
+        javafx.scene.control.TableColumn<String[], String> refCol = new javafx.scene.control.TableColumn<>("Reference ID");
+        refCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[0]));
+        refCol.setPrefWidth(190);
+
+        javafx.scene.control.TableColumn<String[], String> typeCol = new javafx.scene.control.TableColumn<>("Type");
+        typeCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[1]));
         typeCol.setPrefWidth(130);
 
-        javafx.scene.control.TableColumn<Transaction, String> amountCol = new javafx.scene.control.TableColumn<>("Amount (RWF)");
-        amountCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
-                String.format("%.2f", cellData.getValue().getAmount())));
+        javafx.scene.control.TableColumn<String[], String> amountCol = new javafx.scene.control.TableColumn<>("Amount (RWF)");
+        amountCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[2]));
         amountCol.setPrefWidth(130);
 
-        javafx.scene.control.TableColumn<Transaction, String> dateCol = new javafx.scene.control.TableColumn<>("Date");
-        dateCol.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().getCreatedAt() != null
-                        ? cellData.getValue().getCreatedAt().toString().replace("T", " ").substring(0, 19)
-                        : ""));
+        javafx.scene.control.TableColumn<String[], String> dateCol = new javafx.scene.control.TableColumn<>("Date");
+        dateCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue()[3]));
         dateCol.setPrefWidth(170);
 
         table.getColumns().addAll(refCol, typeCol, amountCol, dateCol);
         table.setColumnResizePolicy(javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY);
         table.setPrefHeight(400);
-
-        javafx.application.Platform.runLater(() -> {
-            table.getItems().addAll(transactions);
-            table.refresh();
-        });
 
         contentArea.getChildren().addAll(title, countLabel, table);
     }
